@@ -1,0 +1,14 @@
+question 1 :
+What is the data structure for node and list?
+
+
+question 2 :
+Does each input nc command cause the program to create one thread?
+And the dealy used is trying to stimulate the scenario ready to wirte or not ready?
+In this case, several threads may write to the same list at same time, therefore we need a locks (mutex)?
+
+
+question 3 :
+What does it mean by "for each incoming read or line you will create a new node and added to the shared list."
+Including the command?
+
