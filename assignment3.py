@@ -75,7 +75,7 @@ def handle_client(client_socket, client_ID):
                             shared_list.tail_list[dict_index].next_book = new_node
                             shared_list.tail_list[dict_index] = new_node
                             # if contains the pattern
-                            if pattern in data.decode("utf-8"):
+                            if pattern!=None and pattern in data.decode("utf-8"):
                                 shared_list.tail_frequent_search_list[dict_index].next_frequent_search = new_node
                                 shared_list.tail_frequent_search_list[dict_index] = new_node
 
