@@ -130,6 +130,7 @@ def pattern_analyze(pattern,idx):
 
 # access command-line arguments
 arguments = sys.argv
+pattern = None
 for i in range(len(arguments)):
     if arguments[i] == "-l":
         port_number = int(arguments[i+1])
