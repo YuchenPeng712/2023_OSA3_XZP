@@ -24,31 +24,7 @@ class Node_List:
         self.head_frequent_search_list = []
         self.tail_frequent_search_list = []
 
-def pattern_analyze(pattern):
-    global shared_list, pattern_count
-    while True:
-        with lock:
-            # Reset the pattern count for each iteration
-            pattern_count = {}
-            
-            # Iterate through each book's frequent search list
-            for idx, head_node in enumerate(shared_list.head_frequent_search_list):
-                count = 0
-                current_node = head_node
-                while current_node:
-                    count += current_node.content.decode('utf-8').count(pattern)
-                    current_node = current_node.next_frequent_search
-                
-                book_id = shared_list.head_list[idx].label
-                pattern_count[book_id] = count
-            
-            # Sort the book by pattern count
-            sorted_books = sorted(pattern_count.items(), key=lambda x: x[1], reverse=True)
-            print("sort by pattern freqency:", pattern)
-            for book_id, count in sorted_books:
-                print(f"Book ID: {book_id}, Count: {count}")
-        
-        time.sleep(5)
+
 
 
 
@@ -122,6 +98,36 @@ def handle_client(client_socket, client_ID):
         for content in content_to_write:
             book_file.write(content)
 
+output_flag = False
+def pattern_analyze(pattern,idx):
+    global shared_list, pattern_count,output_flag
+    while True:
+        with patternLock:
+            if output_flag == False:
+                if len(shared_list.head_frequent_search_list) <= idx:
+                    continue
+                head_node = shared_list.head_frequent_search_list[idx]
+                count = 0
+                current_node = head_node
+                while current_node:
+                    count += current_node.content.decode('utf-8').count(pattern)
+                    current_node = current_node.next_frequent_search
+                
+                book_id = shared_list.head_list[idx].label
+                pattern_count[book_id] = count
+                
+                # Sort the book by pattern count
+                sorted_books = sorted(pattern_count.items(), key=lambda x: x[1], reverse=True)
+                print("sort by pattern freqency:", pattern)
+                for book_id, count in sorted_books:
+                    print(f"Book ID: {book_id}, Count: {count}")
+                output_flag = True
+            else:
+                continue
+        
+        time.sleep(5)
+        output_flag = False
+
 # access command-line arguments
 arguments = sys.argv
 for i in range(len(arguments)):
@@ -141,14 +147,17 @@ client_ID = 1
 shared_list = Node_List()
 lock = threading.Lock()
 pattern_count = {}
+patternLock = threading.Lock()
 
-# Create a new thread for pattern analysis
-pattern_analyze_thread = threading.Thread(target=pattern_analyze, args=(pattern,))
-pattern_analyze_thread.start()
+
 # listen
 while True:
     client_socket, address = server_socket.accept()
     # Create a new thread for each client connection
-    client_handler = threading.Thread(target=handle_client, args=(client_socket, client_ID))
+    client_handler = threading.Thread(target=handle_client, args=(client_socket, client_ID))    
     client_handler.start()
+    if pattern != None:
+        # Create a new thread for pattern analysis
+        pattern_analyze_thread = threading.Thread(target=pattern_analyze, args=(pattern,client_ID-1))
+        pattern_analyze_thread.start()
     client_ID =  client_ID + 1 
