@@ -99,9 +99,11 @@ def handle_client(client_socket, client_ID):
             book_file.write(content)
 
 output_flag = False
-def pattern_analyze(pattern,idx):
+def pattern_analyze(client_handler,pattern,idx):
+    
     global shared_list, pattern_count,output_flag
-    while True:
+    while client_handler.is_alive():
+        
         with patternLock:
             if output_flag == False:
                 if len(shared_list.head_frequent_search_list) <= idx:
@@ -127,6 +129,8 @@ def pattern_analyze(pattern,idx):
         
         time.sleep(5)
         output_flag = False
+    
+
 
 # access command-line arguments
 arguments = sys.argv
@@ -159,6 +163,6 @@ while True:
     client_handler.start()
     if pattern != None:
         # Create a new thread for pattern analysis
-        pattern_analyze_thread = threading.Thread(target=pattern_analyze, args=(pattern,client_ID-1))
+        pattern_analyze_thread = threading.Thread(target=pattern_analyze, args=(client_handler,pattern,client_ID-1))
         pattern_analyze_thread.start()
     client_ID =  client_ID + 1 
